@@ -1,35 +1,72 @@
-import React from "react";
+import React, { Component } from "react";
 import PropTypes from "prop-types";
 
+class ListContacts extends Component {
+  static propTypes = {
+    contacts: PropTypes.array.isRequired,
+    onDeleteContact: PropTypes.func.isRequired,
+  };
 
-function ListContacts(props) {
-  return (
-    <ol className="contact-list">
-      {props.contacts.map((contact) => (
-        <li key={contact.id} className="contact-list-item">
-          <div
-            className="contact-avatar"
-            style={{
-              backgroundImage: `url(${contact.avatarURL})`,
+  state = {
+    query: "",
+  };
+
+  updateQuery = (query) => {
+    this.setState(() => ({
+      query: query.trim(),
+    }));
+  };
+
+  render() {
+    const { query } = this.state;
+    const { contacts, onDeleteContact } = this.props;
+    const showingContacts =
+      query === ""
+        ? contacts
+        : contacts.filter((c) =>
+            c.name.toLowerCase().includes(query.toLowerCase())
+          );
+
+    return (
+      <div className="list-contacts">
+        <div className="list-contacts-top">
+          <input
+            className="search-contacts"
+            type="text"
+            placeholder="Search contacts"
+            value={query}
+            onChange={(e) => {
+              this.updateQuery(e.target.value);
             }}
-          ></div>
-          <div className="contact-details">
-            <p>{contact.name}</p>
-            <p>@{contact.handle}</p>
-          </div>
-          <button
-          onClick={()=>(props.onDeleteContact(contact))}
-          className="contact-remove"
-          >remove</button>
-        </li>
-      ))}
-    </ol>
-  );
+          />
+        </div>
+        <ol className="contact-list">
+          {showingContacts.map((contact) => (
+            <li key={contact.id} className="contact-list-item">
+              <div
+                className="contact-avatar"
+                style={{
+                  backgroundImage: `url(${contact.avatarURL})`,
+                }}
+              ></div>
+              <div className="contact-details">
+                <p>{contact.name}</p>
+                <p>@{contact.handle}</p>
+              </div>
+              <button
+                onClick={() => onDeleteContact(contact)}
+                className="contact-remove"
+              >
+                remove
+              </button>
+            </li>
+          ))}
+        </ol>
+      </div>
+    );
+  }
 }
 
-ListContacts.propTypes = {
-  contacts: PropTypes.array.isRequired,
-  onDeleteContact: PropTypes.func.isRequired,
-}
+//ListContacts.propTypes = {}
 
 export default ListContacts;
